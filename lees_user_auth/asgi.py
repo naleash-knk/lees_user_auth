@@ -9,12 +9,12 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
 
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-import music.routing
+import users.routing
 
 application = ProtocolTypeRouter({
     'websocket': AuthMiddlewareStack(
         URLRouter(
-            music.routing.websocket_urlpatterns
+            users.routing.websocket_urlpatterns
         )
     ),
 })
