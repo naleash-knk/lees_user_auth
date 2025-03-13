@@ -156,7 +156,7 @@ class OpenAIAudioView(APIView):
                 language_code = "en-US"
                 voice_name = "en-US-Standard-J"
 
-            # Use the environment variable for Google Cloud credentials
+            #
             credentials_info = json.loads(os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"))
             credentials = service_account.Credentials.from_service_account_info(credentials_info)
             tts_client = tts.TextToSpeechClient(credentials=credentials)
