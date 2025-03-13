@@ -63,6 +63,7 @@ class OpenAITextView(APIView):
     def post(self, request, *args, **kwargs):
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
+            logger.error("OpenAI API key not found")
             return Response({"error": "OpenAI API key not found"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         client = OpenAI(
@@ -117,6 +118,7 @@ PHONEME_TO_FRAME_RANGE = {
 }
 
 class OpenAIAudioView(APIView):
+
 
     def post(self, request, *args, **kwargs):
         api_key = os.getenv("OPENAI_API_KEY")
