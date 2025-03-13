@@ -29,6 +29,7 @@ import google.cloud.texttospeech as tts
 import nltk
 from nltk.corpus import cmudict
 from rest_framework.permissions import AllowAny
+from google.oauth2 import service_account
 
 
 
@@ -155,7 +156,11 @@ class OpenAIAudioView(APIView):
                 language_code = "en-US"
                 voice_name = "en-US-Standard-J"
 
-            tts_client = tts.TextToSpeechClient()
+            # Use the environment variable for Google Cloud credentials
+            credentials_info = json.loads(os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"))
+            credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            tts_client = tts.TextToSpeechClient(credentials=credentials)
+
             input_text = tts.SynthesisInput(text=cleaned_response)
             audio_config = tts.AudioConfig(audio_encoding=tts.AudioEncoding.LINEAR16)
             voice = tts.VoiceSelectionParams(language_code=language_code, name=voice_name)
