@@ -28,6 +28,7 @@ import random
 import google.cloud.texttospeech as tts
 import nltk
 from nltk.corpus import cmudict
+from rest_framework.permissions import AllowAny
 
 
 
@@ -55,6 +56,7 @@ class LoginView(generics.GenericAPIView):
 class UserCreateView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+    permission_class=[AllowAny]
 
 class OpenAITextView(APIView):
     permission_classes = [IsAuthenticated]

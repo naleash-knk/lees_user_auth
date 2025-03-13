@@ -86,16 +86,19 @@ WSGI_APPLICATION = 'lees_user_auth.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
+import dj_database_url
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'lees_user_auth_db',
-        'USER':'adminknk',
-        'PASSWORD':'nl1432005',
-        'HOST':'localhost',
-        'PORT':'5432'
+        'USER': 'adminknk',
+        'PASSWORD': 'MNmZjcBuvnZ2NVdqLdC5M7NkpNgp5wTF',
+        'HOST': 'dpg-cv9d48rtq21c73994620-a.oregon-postgres.render.com',
+        'PORT': '5432',
     }
 }
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -157,7 +160,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-APPEND_SLASH = False
+APPEND_SLASH = True
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -167,7 +170,8 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [
+                os.environ.get("redis://default:AfHkAAIjcDFkMjkwZjBmYWUwNTE0YzliODAxMTBmNWVlYzlkMmM0ZHAxMA@equal-pony-61924.upstash.io:6379")]
         },
     },
 }
