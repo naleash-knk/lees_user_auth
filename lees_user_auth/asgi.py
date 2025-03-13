@@ -2,8 +2,7 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-# import your websocket routing if you have it
-# from chat import routing  # Or music.routing if using WebSockets
+from users.routing import routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lees_user_auth.settings')
 
