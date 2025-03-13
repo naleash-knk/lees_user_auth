@@ -59,7 +59,6 @@ class UserCreateView(generics.CreateAPIView):
     permission_class=[AllowAny]
 
 class OpenAITextView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         api_key = os.getenv("OPENAI_API_KEY")
@@ -118,7 +117,6 @@ PHONEME_TO_FRAME_RANGE = {
 }
 
 class OpenAIAudioView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         api_key = os.getenv("OPENAI_API_KEY")
