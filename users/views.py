@@ -128,8 +128,6 @@ class OpenAIAudioView(APIView):
             query = request.data.get("query", "") + " in 50 Words"
             print(f"Received Query: {query}")  
 
-            print(query)
-
             completion = client.chat.completions.create(
                 extra_body={},
                 model="google/gemini-2.0-pro-exp-02-05:free",
@@ -144,12 +142,12 @@ class OpenAIAudioView(APIView):
             detected_language = detect(query)
             print(f"Detected Language: {detected_language}")
 
-            if detected_language=='ta':
-                language_code="ta-IN"
-                voice_name="ta-IN-Standard-B"
+            if detected_language == 'ta':
+                language_code = "ta-IN"
+                voice_name = "ta-IN-Standard-B"
             else:
-                language_code="en-US"
-                voice_name="en-US-Standard-J"
+                language_code = "en-US"
+                voice_name = "en-US-Standard-J"
             
             tts_client = tts.TextToSpeechClient()
             input_text = tts.SynthesisInput(text=cleaned_response)
@@ -168,7 +166,6 @@ class OpenAIAudioView(APIView):
 
             print(f"Audio File Saved: {audio_path}")
 
-            
             def text_to_phonemes(text):
                 words = text.lower().split()
                 pronouncing_dict = cmudict.dict()
@@ -184,7 +181,6 @@ class OpenAIAudioView(APIView):
 
             avg_phoneme_duration = duration / max(len(phoneme_list), 1)
 
-        
             visemes = []
             time_accumulator = 0
             for phoneme in phoneme_list:
