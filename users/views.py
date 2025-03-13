@@ -117,12 +117,15 @@ PHONEME_TO_FRAME_RANGE = {
     "y": (161, 242)  
 }
 
+from rest_framework.permissions import IsAuthenticated
+
 class OpenAIAudioView(APIView):
+    permission_classes=[IsAuthenticated]
     def post(self, request, *args, **kwargs):
         try:
             client = OpenAI(
                 base_url="https://openrouter.ai/api/v1",
-                api_key="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",
+                api_key=os.getenv("OPENAI_API_KEY")
             )
 
             query = request.data.get("query", "") + " in 50 Words"
