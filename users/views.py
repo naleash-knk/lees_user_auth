@@ -62,15 +62,17 @@ class OpenAITextView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return Response({"error": "OpenAI API key not found"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key=os.getenv("OPENAI_API_KEY")
+            api_key=api_key
         )
 
         query = request.data.get("query")
         image_url = request.data.get("image_url")
-
-
 
         try:
             completion = client.chat.completions.create(
@@ -96,12 +98,10 @@ class OpenAITextView(APIView):
             )
 
             response_content = completion.choices[0].message.content
-            
             return JsonResponse({"response": response_content})
         except Exception as e:
             logger.error(f"Error in OpenAITextView: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 PHONEME_TO_FRAME_RANGE = {
     "p": (1, 80), "b": (1, 80), "m": (1, 80),  
@@ -117,19 +117,22 @@ PHONEME_TO_FRAME_RANGE = {
     "y": (161, 242)  
 }
 
-from rest_framework.permissions import IsAuthenticated
-
 class OpenAIAudioView(APIView):
-    permission_classes=[IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            return Response({"error": "OpenAI API key not found"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         try:
             client = OpenAI(
                 base_url="https://openrouter.ai/api/v1",
-                api_key=os.getenv("OPENAI_API_KEY")
+                api_key=api_key
             )
 
             query = request.data.get("query", "") + " in 50 Words"
-            print(f"Received Query: {query}")  
+            print(f"Received Query: {query}")
 
             completion = client.chat.completions.create(
                 extra_body={},
@@ -138,7 +141,7 @@ class OpenAIAudioView(APIView):
             )
 
             response_content = completion.choices[0].message.content
-            print(f"OpenAI Response: {response_content}")  
+            print(f"OpenAI Response: {response_content}")
 
             cleaned_response = response_content.replace('*', '')
 
@@ -151,14 +154,14 @@ class OpenAIAudioView(APIView):
             else:
                 language_code = "en-US"
                 voice_name = "en-US-Standard-J"
-            
+
             tts_client = tts.TextToSpeechClient()
             input_text = tts.SynthesisInput(text=cleaned_response)
             audio_config = tts.AudioConfig(audio_encoding=tts.AudioEncoding.LINEAR16)
             voice = tts.VoiceSelectionParams(language_code=language_code, name=voice_name)
 
             tts_response = tts_client.synthesize_speech(input=input_text, voice=voice, audio_config=audio_config)
-            print("Google TTS Synthesis Completed")  
+            print("Google TTS Synthesis Completed")
 
             media_path = settings.MEDIA_ROOT
             os.makedirs(media_path, exist_ok=True)
@@ -173,35 +176,35 @@ class OpenAIAudioView(APIView):
                 words = text.lower().split()
                 pronouncing_dict = cmudict.dict()
                 phonemes = [pronouncing_dict[word][0] if word in pronouncing_dict else ["?"] for word in words]
-                return [phoneme for sublist in phonemes for phoneme in sublist]  
+                return [phoneme for sublist in phonemes for phoneme in sublist]
 
             phoneme_list = text_to_phonemes(cleaned_response)
-            print(f"Phonemes: {phoneme_list}")  
+            print(f"Phonemes: {phoneme_list}")
 
             audio_data, samplerate = sf.read(audio_path)
             duration = len(audio_data) / samplerate
-            print(f"Audio Duration: {duration} seconds")  
+            print(f"Audio Duration: {duration} seconds")
 
             avg_phoneme_duration = duration / max(len(phoneme_list), 1)
 
             visemes = []
             time_accumulator = 0
             for phoneme in phoneme_list:
-                frame_range = PHONEME_TO_FRAME_RANGE.get(phoneme, (1, 80))  
-                viseme_frame = random.randint(frame_range[0], frame_range[1])  
+                frame_range = PHONEME_TO_FRAME_RANGE.get(phoneme, (1, 80))
+                viseme_frame = random.randint(frame_range[0], frame_range[1])
                 visemes.append({"start": round(time_accumulator, 3), "viseme": viseme_frame})
                 time_accumulator += avg_phoneme_duration
 
-            print(f"Generated Visemes: {visemes}")  
+            print(f"Generated Visemes: {visemes}")
 
             audio_url = request.build_absolute_uri(settings.MEDIA_URL + "response_audio.wav")
-            print(f"Returning Audio URL: {audio_url}")  
+            print(f"Returning Audio URL: {audio_url}")
 
             return JsonResponse({"audio_url": audio_url, "visemes": visemes})
 
         except Exception as e:
             error_trace = traceback.format_exc()
-            print(f"Internal Server Error:\n{error_trace}")  
+            print(f"Internal Server Error:\n{error_trace}")
             return Response({"error": str(e), "traceback": error_trace}, status=500)
 
 @api_view(['POST'])
